@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Remove container layout influence */
+    .container.mt-4 {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Fix flex issue caused by navbar css */
+    .container {
+        display: block !important;
+    }
+
+    /* Center layout */
+    .register-wrapper {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        justify-content: center;  /* Horizontal center */
+        align-items: center;      /* Vertical center */
+        background: #f2f4f7;
+        padding: 20px;
+    }
+
+    .register-card {
+        width: 420px;
+        background: #fff;
+        border-radius: 12px;
+        padding: 28px 32px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+        animation: fadeIn .35s ease;
+    }
+
+    .register-title {
+        text-align: center;
+        font-weight: 700;
+        font-size: 22px;
+        margin-bottom: 20px;
+        color: #198754;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="register-wrapper">
+    <div class="register-card">
+
+        <h3 class="register-title">Create Account</h3>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-success w-100 mt-2">Register</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+            Already have an account?
+            <a href="{% url 'login' %}">Login here</a>
+        </p>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<style>
+    /* Remove container layout influence */
+    .container.mt-4 {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* This was causing left shift because base.html applies flex to all .container */
+    .container {
+        display: block !important;  /* ✅ Forces normal layout */
+    }
+
+    /* Center wrapper */
+    .login-wrapper {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        justify-content: center;   /* ✅ Horizontal center */
+        align-items: center;       /* ✅ Vertical center */
+        background: #f2f4f7;
+        padding: 20px;
+    }
+
+    .login-card {
+        width: 380px;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 25px 30px;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
+        animation: fadeIn .4s ease;
+    }
+
+    .login-title {
+        text-align: center;
+        font-weight: 700;
+        font-size: 22px;
+        margin-bottom: 18px;
+        color: #0d6efd;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <h3 class="login-title">User Login</h3>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-100 mt-2">Log In</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+            Don't have an account?
+            <a href="{% url 'register' %}">Register here</a>
+        </p>
+    </div>
+</div>
+
+{% endblock %}
+
+

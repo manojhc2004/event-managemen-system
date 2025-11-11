@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow-lg mb-4">
+            
+            {% if event.image %}
+                <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 350px; object-fit: cover;">
+            {% else %}
+                <div class="bg-light text-center p-5 text-muted" style="height: 350px; line-height: 300px; font-size: 1.5rem;">
+                    [Event Image Placeholder]
+                </div>
+            {% endif %}
+
+            <div class="card-body p-4">
+                <h1 class="card-title text-primary mb-3">{{ event.title }}</h1>
+                <p class="lead">{{ event.description|linebreaksbr }}</p>
+
+                <hr>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p class="mb-1"><i class="bi bi-calendar-event me-2"></i> <strong>Date:</strong> {{ event.date|date:"l, F d, Y" }}</p>
+                        <p class="mb-1"><i class="bi bi-clock me-2"></i> <strong>Time:</strong> {{ event.time|time:"h:i A" }}</p>
+                        <p class="mb-1"><i class="bi bi-geo-alt me-2"></i> <strong>Venue:</strong> {{ event.venue }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-1"><i class="bi bi-people me-2"></i> <strong>Total Seats:</strong> {{ event.max_seats }}</p>
+                        <p class="mb-1"><i class="bi bi-check-circle me-2"></i> <strong>Available Seats:</strong> 
+                            <span class="fw-bold {% if event.is_fully_booked %}text-danger{% else %}text-success{% endif %}">
+                                {{ event.available_seats }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <hr>
+                
+                {% if user.is_authenticated %}
+                    {% if event.is_fully_booked %}
+                        <button class="btn btn-danger w-100" disabled>SOLD OUT</button>
+                    {% elif has_booked %}
+                        <button class="btn btn-success w-100" disabled>Booked (View My Bookings)</button>
+                    {% elif event.date < "now"|date:"Y-m-d" %}
+                        <button class="btn btn-secondary w-100" disabled>Event Has Passed</button>
+                    {% else %}
+                        <form method="post" action="{% url 'book_event' event.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary w-100 btn-lg">Book My Seat Now</button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning text-center">
+                        <a href="{% url 'login' %}?next={% url 'event_detail' event.pk %}" class="alert-link">Log in to book this event.</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="{% url 'event_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Events</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

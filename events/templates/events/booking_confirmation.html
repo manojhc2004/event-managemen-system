@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Booking Confirmed{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card text-center border-success shadow-lg">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
+            </div>
+            <div class="card-body p-5">
+                <h2 class="card-title text-success mb-4">Booking Successful!</h2>
+                <p class="lead">Your seat for **{{ event.title }}** has been successfully reserved.</p>
+                <hr>
+                <p class="mb-4">
+                    **Event Details:**<br>
+                    Date: {{ event.date|date:"F d, Y" }} at {{ event.time|time:"h:i A" }}<br>
+                    Venue: {{ event.venue }}
+                </p>
+                <a href="{% url 'my_bookings' %}" class="btn btn-primary btn-lg me-3">View My Bookings</a>
+                <a href="{% url 'event_list' %}" class="btn btn-outline-secondary btn-lg">Explore More Events</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

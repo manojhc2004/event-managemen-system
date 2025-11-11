@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Admin Dashboard</h1>
+
+<div class="row mb-5">
+    {# Total Events Card #}
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3 shadow">
+            <div class="card-header">Total Events</div>
+            <div class="card-body">
+                <h2 class="card-title">{{ total_events }}</h2>
+                <p class="card-text">Total events created.</p>
+            </div>
+        </div>
+    </div>
+    
+    {# Total Bookings Card #}
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3 shadow">
+            <div class="card-header">Total Bookings</div>
+            <div class="card-body">
+                <h2 class="card-title">{{ total_bookings }}</h2>
+                <p class="card-text">Total reservations made.</p>
+            </div>
+        </div>
+    </div>
+    
+    {# Total Users Card #}
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3 shadow">
+            <div class="card-header">Total Users</div>
+            <div class="card-body">
+                <h2 class="card-title">{{ total_users }}</h2>
+                <p class="card-text">Total registered accounts.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {# Recent Bookings Table #}
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <h5>Recent Bookings</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for booking in recent_bookings %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            **{{ booking.user.username }}** booked **{{ booking.event.title }}**
+                        </div>
+                        <small class="text-muted">{{ booking.booking_date|date:"M d, H:i" }}</small>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">No recent bookings.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    {# Top Events by Bookings #}
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <h5>Top Events by Bookings</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for event in event_stats %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ event.title }}
+                        <span class="badge bg-secondary rounded-pill">{{ event.num_bookings }} bookings</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">No events with bookings yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 text-center">
+    <a href="{% url 'admin:index' %}" class="btn btn-outline-dark">Go to Django Admin</a>
+</div>
+
+{% endblock %}
