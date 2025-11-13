@@ -16,19 +16,36 @@ from .forms import UserUpdateForm, ProfileUpdateForm
 # ----------------------------------------------------
 # 1. AUTHENTICATION (Registration)
 # ----------------------------------------------------
+from django.views import View
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import CustomRegisterForm
+from datetime import datetime, time
+from django.utils import timezone
+  
+from datetime import date, datetime
+from django.utils import timezone
+
+
+
 
 class UserRegistrationView(View):
+    """Handles new user registration."""
+
     def get(self, request):
-        form = UserCreationForm()
-        return render(request, 'registration/register.html', {'form': form})
+        form = CustomRegisterForm()
+        return render(request, "registration/register.html", {"form": form})
 
     def post(self, request):
-        form = UserCreationForm(request.POST)
+        form = CustomRegisterForm(request.POST)
         if form.is_valid():
-            form.save()  # ✅ Let signal create profile automatically
-            messages.success(request, 'Registration successful! You can now log in.')
-            return redirect('login')
-        return render(request, 'registration/register.html', {'form': form})
+            form.save()
+            messages.success(request, "Account created successfully! You can now login.")
+            return redirect("login")
+
+        return render(request, "registration/register.html", {"form": form})
+
+
 
 # ----------------------------------------------------
 # 2. EVENT LISTING (Landing Page) - Includes Search Logic
@@ -99,40 +116,78 @@ class BookEventView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f'An error occurred during booking: {e}')
             return redirect('event_detail', pk=event.pk)
+        
 
-class BookingConfirmationView(LoginRequiredMixin, DetailView):
-    """Displays a booking confirmation page."""
-    model = Event
-    template_name = 'events/booking_confirmation.html'
-    context_object_name = 'event'
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Event, Booking
+
+@login_required(login_url='login')
+def booking_confirmation(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+
+    # FULL CHECK
+    if event.is_fully_booked:
+        messages.error(request, "This event is fully booked.")
+        return redirect("event_detail", pk=event_id)
+
+    # DUPLICATE CHECK
+    if Booking.objects.filter(user=request.user, event=event).exists():
+        messages.warning(request, "You already booked this event.")
+        return redirect("event_detail", pk=event_id)
+
+    # CREATE BOOKING
+    booking = Booking.objects.create(
+        user=request.user,
+        event=event
+    )
+
+    # SHOW CONFIRMATION PAGE
+    return render(request, "events/booking_confirmation.html", {
+        "event": event,
+        "booking": booking,
+    })
+
+
+
+
 
 
 # ----------------------------------------------------
 # 4. USER BOOKINGS
-# ----------------------------------------------------
+# ------------
+from datetime import datetime
+from django.utils import timezone
 
 class MyBookingsView(LoginRequiredMixin, ListView):
-    """Displays a list of events booked by the current user."""
     model = Booking
     template_name = 'events/my_bookings.html'
     context_object_name = 'bookings'
 
     def get_queryset(self):
-        return Booking.objects.filter(user=self.request.user).order_by('-booking_date')
+        return Booking.objects.filter(
+            user=self.request.user
+        ).select_related("event").order_by('-booking_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        upcoming = []
-        past = []
+
+        now = timezone.now()
+
         for booking in context['bookings']:
-            if booking.event.date >= date.today():
-                upcoming.append(booking)
-            else:
-                past.append(booking)
-        
-        context['upcoming_bookings'] = upcoming
-        context['past_bookings'] = past
+            event = booking.event
+
+            event_datetime = timezone.make_aware(
+                datetime.combine(event.date, event.time)
+            )
+
+            # Set can_cancel True / False
+            booking.can_cancel = now < event_datetime
+
         return context
+
+
 
 
 # ----------------------------------------------------
@@ -141,19 +196,33 @@ class MyBookingsView(LoginRequiredMixin, ListView):
 
 class UserProfileView(LoginRequiredMixin, View):
     """Displays the user profile and handles form submission for updates."""
-    
+
     def get(self, request):
-        # Using the corrected form name
+        # Forms
         user_form = UserUpdateForm(instance=request.user)
         user_profile, created = UserProfile.objects.get_or_create(user=request.user)
-        # Using the corrected form name
-        profile_form = ProfileUpdateForm(instance=user_profile) 
-        
-        context = {
+        profile_form = ProfileUpdateForm(instance=user_profile)
+
+        # USER BOOKINGS (FIX IS HERE)
+        bookings = Booking.objects.filter(user=request.user).select_related("event").order_by('-booking_date')
+
+        upcoming = []
+        past = []
+
+        from datetime import date
+        for booking in bookings:
+            if booking.event.date >= date.today():
+                upcoming.append(booking)
+            else:
+                past.append(booking)
+
+        return render(request, 'events/profile.html', {
             'user_form': user_form,
-            'profile_form': profile_form
-        }
-        return render(request, 'events/profile.html', context)
+            'profile_form': profile_form,
+            'bookings': bookings,
+            'upcoming_bookings': upcoming,
+            'past_bookings': past,
+        })
 
     def post(self, request):
         user_form = UserUpdateForm(request.POST, instance=request.user)
@@ -203,3 +272,29 @@ class AdminDashboardView(LoginRequiredMixin, View):
             'event_stats': event_stats,
         }
         return render(request, 'events/admin_dashboard.html', context)
+
+
+from django.utils import timezone
+
+@login_required
+@login_required
+def cancel_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    event = booking.event
+
+    now = timezone.now()
+
+    # Correct datetime combine
+    event_datetime = timezone.make_aware(
+        datetime.combine(event.date, event.time)
+    )
+
+    if now >= event_datetime:
+        messages.error(request, "You cannot cancel this booking because the event has already started or passed.")
+        return redirect("my_bookings")
+
+    # Delete booking only
+    booking.delete()
+
+    messages.success(request, f"Your booking for '{event.title}' has been cancelled.")
+    return redirect("my_bookings")

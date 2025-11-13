@@ -1,29 +1,43 @@
-<div class="card mb-3 shadow-sm border-{{ is_upcoming|yesno:'primary,secondary' }}">
-    <div class="row g-0">
-        <div class="col-md-3">
-            {% if booking.event.image %}
-                <img src="{{ booking.event.image.url }}" class="img-fluid rounded-start h-100" alt="{{ booking.event.title }}" style="object-fit: cover;">
-            {% else %}
-                <div class="bg-light text-center text-muted p-4 h-100 d-flex align-items-center justify-content-center">
-                    [No Image]
-                </div>
-            {% endif %}
-        </div>
-        <div class="col-md-9">
-            <div class="card-body">
-                <h5 class="card-title">{{ booking.event.title }}</h5>
-                <p class="card-text mb-1">
-                    <i class="bi bi-calendar-event me-2"></i> **Event Date:** {{ booking.event.date|date:"F d, Y" }} at {{ booking.event.time|time:"h:i A" }}
-                </p>
-                <p class="card-text mb-2">
-                    <i class="bi bi-geo-alt me-2"></i> **Venue:** {{ booking.event.venue }}
-                </p>
-                <p class="card-text"><small class="text-muted">Booked on: {{ booking.booking_date|date:"M d, Y" }}</small></p>
-                
-                <a href="{% url 'event_detail' booking.event.pk %}" class="btn btn-sm btn-outline-{{ is_upcoming|yesno:'primary,secondary' }}">
-                    View Event Details
-                </a>
-            </div>
-        </div>
+<div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow flex justify-between items-center">
+
+    <!-- LEFT: EVENT DETAILS -->
+    <div>
+        <h3 class="text-lg font-semibold text-primary">{{ booking.event.title }}</h3>
+
+        <p class="text-gray-500 text-sm mt-1">
+            <i class="bi bi-calendar-event"></i>
+            {{ booking.event.date }} at {{ booking.event.time }}
+        </p>
+
+        <p class="text-gray-500 text-sm">
+            <i class="bi bi-geo-alt"></i> {{ booking.event.venue }}
+        </p>
+
+        <p class="text-gray-400 text-xs mt-2">
+            Booked on: {{ booking.booking_date|date:"F d, Y h:i A" }}
+        </p>
     </div>
+
+    <!-- RIGHT: CANCEL BUTTON -->
+    <div class="text-right">
+
+        {% if booking.can_cancel %}
+            <!-- CANCEL BUTTON -->
+            <form method="post" action="{% url 'cancel_booking' booking.id %}">
+                {% csrf_token %}
+                <button
+                    class="px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition">
+                    Cancel
+                </button>
+            </form>
+
+        {% else %}
+            <!-- DISABLED STATUS -->
+            <span class="px-4 py-2 bg-gray-400 text-white rounded-xl">
+                Cancellation Closed
+            </span>
+        {% endif %}
+
+    </div>
+
 </div>

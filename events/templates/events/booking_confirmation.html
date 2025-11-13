@@ -2,25 +2,57 @@
 {% block title %}Booking Confirmed{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-7">
-        <div class="card text-center border-success shadow-lg">
-            <div class="card-header bg-success text-white">
-                <i class="bi bi-check-circle-fill" style="font-size: 2rem;"></i>
-            </div>
-            <div class="card-body p-5">
-                <h2 class="card-title text-success mb-4">Booking Successful!</h2>
-                <p class="lead">Your seat for **{{ event.title }}** has been successfully reserved.</p>
-                <hr>
-                <p class="mb-4">
-                    **Event Details:**<br>
-                    Date: {{ event.date|date:"F d, Y" }} at {{ event.time|time:"h:i A" }}<br>
-                    Venue: {{ event.venue }}
-                </p>
-                <a href="{% url 'my_bookings' %}" class="btn btn-primary btn-lg me-3">View My Bookings</a>
-                <a href="{% url 'event_list' %}" class="btn btn-outline-secondary btn-lg">Explore More Events</a>
+
+<div class="flex justify-center items-center min-h-[70vh]">
+
+    <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-10 max-w-lg w-full text-center space-y-6">
+
+        <div class="flex justify-center">
+            <div class="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <i class="bi bi-check-circle-fill text-green-600 dark:text-green-400 text-5xl"></i>
             </div>
         </div>
+
+        <h2 class="text-3xl font-bold text-primary">Booking Confirmed!</h2>
+
+        <p class="text-gray-600 dark:text-gray-300">
+            Your spot for <span class="font-semibold">{{ event.title }}</span> has been successfully booked.
+        </p>
+
+        <div class="bg-gray-100 dark:bg-gray-700/40 p-6 rounded-xl text-left space-y-3">
+
+            <p class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                <i class="bi bi-calendar-event text-primary"></i>
+                {{ event.date|date:"F d, Y" }} — {{ event.time|time:"h:i A" }}
+            </p>
+
+            <p class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                <i class="bi bi-geo-alt text-primary"></i>
+                {{ event.venue }}
+            </p>
+
+            <p class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                <i class="bi bi-ticket text-primary"></i>
+                Booking ID: <strong>{{ booking.id }}</strong>
+            </p>
+
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+            <a href="{% url 'event_list' %}"
+               class="flex-1 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition">
+                Browse More Events
+            </a>
+
+            <a href="{% url 'my_bookings' %}"
+               class="flex-1 py-3 border border-primary text-primary rounded-xl font-semibold 
+                      hover:bg-primary hover:text-white transition">
+                My Bookings
+            </a>
+        </div>
+
     </div>
+
 </div>
+
 {% endblock %}

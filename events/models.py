@@ -17,12 +17,15 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
+    @property
     def available_seats(self):
         booked_seats = self.booking_set.count()
         return self.max_seats - booked_seats
 
+    @property
     def is_fully_booked(self):
-        return self.available_seats() <= 0
+        return self.available_seats <= 0
+
 
 
 class Booking(models.Model):

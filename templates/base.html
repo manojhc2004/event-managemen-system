@@ -1,113 +1,130 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="antialiased">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Updated Title to BookPulse -->
-    <title>{% block title %}BookPulse{% endblock %}</title> 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- IMPORTANT: Add Bootstrap Icons for consistent styling across the app -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        /* Custom style for true black background and consistent height */
-        .bg-true-black {
-            background-color: #000000 !important;
-            min-height: 70px; 
-        }
-        
-        /* Ensures the entire navbar content is perfectly centered vertically */
-        .navbar-nav, .container, .navbar-collapse {
-            display: flex;
-            align-items: center; 
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Event App{% endblock %} — EventHub</title>
 
-        /* Styling to make nav links look like buttons */
-        .nav-btn-link {
-            /* Use btn-link but override text color to white for black background */
-            color: #fff !important; 
-            text-decoration: none !important;
-            padding: .5rem 1rem;
-            border-radius: .25rem;
-            transition: background-color 0.15s ease-in-out;
-        }
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        .nav-btn-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #fff !important;
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#0f62fe',
+              600: '#0b53d1'
+            },
+            accent: '#06b6d4'
+          },
+          borderRadius: { 'xl': '1rem' }
         }
+      }
+    }
+  </script>
 
-        /* Ensure the form element itself aligns correctly with the list item */
-        #logout-form {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-        }
-    </style>
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  {% block head %}{% endblock %}
+
+  <style>
+    img.object-cover { object-fit: cover; }
+  </style>
 </head>
-<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark bg-true-black">
-        <div class="container align-items-center">
-            <!-- Updated Brand Name to BookPulse -->
-            <a class="navbar-brand" href="{% url 'event_list' %}">BookPulse</a> 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse align-items-center" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link nav-btn-link" href="{% url 'event_list' %}">Home</a>
-                    </li>
-                    {% if user.is_authenticated %}
-                        {% if user.is_superuser %}
-                            <li class="nav-item"><a class="nav-link nav-btn-link text-warning" href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
-                        {% endif %}
-                        <li class="nav-item">
-                            <a class="nav-link nav-btn-link" href="{% url 'my_bookings' %}">My Bookings</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-btn-link" href="{% url 'profile_view' %}">Profile</a>
-                        </li>
-                        
-                        {# Logout Button (Secure POST Form) #}
-                        <li class="nav-item">
-                            <form id="logout-form" method="post" action="{% url 'logout' %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm text-white ms-2">
-                                    Logout
-                                </button>
-                            </form>
-                        </li>
-                        
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link nav-btn-link" href="{% url 'login' %}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-primary btn-sm text-white ms-2" href="{% url 'register' %}">Register</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+
+  <!-- HEADER -->
+  <header class="bg-white/60 dark:bg-gray-800/60 backdrop-blur sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Brand -->
+        <a href="{% url 'event_list' %}" class="flex items-center gap-3">
+          <span class="inline-block w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-accent 
+                       flex items-center justify-center text-white font-bold">E</span>
+          <span class="hidden sm:inline-block font-semibold text-lg">EventHub</span>
+        </a>
+
+        <!-- Nav -->
+        <div class="flex items-center gap-3">
+
+          <nav class="hidden md:flex items-center gap-2">
+            <a href="{% url 'event_list' %}" class="px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+              Events
+            </a>
+
+            {% if user.is_authenticated and user.is_superuser %}
+            <a href="{% url 'admin_dashboard' %}"
+               class="px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+               Dashboard
+            </a>
+            {% endif %}
+          </nav>
+
+          <!-- Dark Mode Toggle -->
+          <button id="darkToggle" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i id="darkIcon" class="bi"></i>
+          </button>
+
+          {% if user.is_authenticated %}
+            <a href="{% url 'profile_view' %}" class="flex items-center gap-2 ml-2">
+              <span class="hidden sm:inline text-sm">{{ user.username }}</span>
+              <span class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 
+                           flex items-center justify-center text-sm">
+                {{ user.username|slice:":1"|upper }}
+              </span>
+            </a>
+          {% else %}
+            <a href="{% url 'login' %}" class="text-sm px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+              Login
+            </a>
+          {% endif %}
+
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        {% block content %}
-        {% endblock %}
+      </div>
     </div>
+  </header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- MAIN CONTENT -->
+  <main class="max-w-7xl mx-auto px-6 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="mt-16 pb-8 text-center text-sm text-gray-500 dark:text-gray-400">
+    © {{ now.year }} EventHub — built with ❤️
+  </footer>
+
+  <!-- DARK MODE SCRIPT -->
+  <script>
+    (function () {
+      const html = document.documentElement;
+      const stored = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      function setIcon() {
+        const icon = document.getElementById('darkIcon');
+        icon.className = html.classList.contains('dark') ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+      }
+
+      if (stored === 'dark' || (!stored && prefersDark)) html.classList.add('dark');
+
+      setIcon();
+
+      document.getElementById('darkToggle').addEventListener('click', () => {
+        html.classList.toggle('dark');
+        localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        setIcon();
+      });
+    })();
+  </script>
+
+  {% block scripts %}{% endblock %}
 </body>
 </html>

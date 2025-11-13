@@ -117,8 +117,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # --- Custom Settings ---
 
 # Authentication Redirects
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+# settings.py
+LOGOUT_REDIRECT_URL = 'event_list'   # or '/' or name of view you prefer
+LOGIN_REDIRECT_URL = 'profile_view'
+LOGOUT_REDIRECT_URL = 'login'
+
 
 # Message tags for Bootstrap styling
 MESSAGE_TAGS = {

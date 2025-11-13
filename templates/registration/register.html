@@ -1,80 +1,114 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Register{% endblock %}
+{% block title %}Create Account{% endblock %}
 
 {% block content %}
 
-<style>
-    /* Remove container layout influence */
-    .container.mt-4 {
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+<div class="flex justify-center items-center min-h-[70vh]">
 
-    /* Fix flex issue caused by navbar css */
-    .container {
-        display: block !important;
-    }
+    <div class="w-full max-w-md bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8">
 
-    /* Center layout */
-    .register-wrapper {
-        min-height: calc(100vh - 70px);
-        display: flex;
-        justify-content: center;  /* Horizontal center */
-        align-items: center;      /* Vertical center */
-        background: #f2f4f7;
-        padding: 20px;
-    }
+        <!-- Title -->
+        <h2 class="text-2xl font-bold text-center text-primary mb-2">
+            Create Account
+        </h2>
 
-    .register-card {
-        width: 420px;
-        background: #fff;
-        border-radius: 12px;
-        padding: 28px 32px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-        animation: fadeIn .35s ease;
-    }
-
-    .register-title {
-        text-align: center;
-        font-weight: 700;
-        font-size: 22px;
-        margin-bottom: 20px;
-        color: #198754;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
-<div class="register-wrapper">
-    <div class="register-card">
-
-        <h3 class="register-title">Create Account</h3>
-
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-success w-100 mt-2">Register</button>
-        </form>
-
-        <p class="text-center mt-3 mb-0">
-            Already have an account?
-            <a href="{% url 'login' %}">Login here</a>
+        <p class="text-center text-gray-500 dark:text-gray-400 mb-6">
+            Join MyEvents and start booking your favourite events!
         </p>
 
+        <!-- Display Django Form Errors -->
+        {% if form.errors %}
+        <div class="mb-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/40 
+                    text-red-700 dark:text-red-300 text-sm">
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- USERNAME -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Username</label>
+                {{ form.username }}
+            </div>
+
+            <!-- PASSWORD -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <div class="relative">
+                    <input id="passwordField"
+                        type="password"
+                        name="password1"
+                        required
+                        class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 
+                               border border-gray-300 dark:border-gray-700 focus:ring-primary/40"
+                        placeholder="Enter your password">
+
+                    <button type="button" id="togglePass1"
+                            class="absolute top-1/2 right-3 -translate-y-1/2 
+                                   text-gray-500 dark:text-gray-300">
+                        <i class="bi bi-eye-slash text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONFIRM PASSWORD -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Confirm Password</label>
+                <div class="relative">
+                    <input id="passwordField2"
+                        type="password"
+                        name="password2"
+                        required
+                        class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 
+                               border border-gray-300 dark:border-gray-700 focus:ring-primary/40"
+                        placeholder="Re-enter your password">
+
+                    <button type="button" id="togglePass2"
+                            class="absolute top-1/2 right-3 -translate-y-1/2 
+                                   text-gray-500 dark:text-gray-300">
+                        <i class="bi bi-eye-slash text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Button -->
+            <button type="submit"
+                    class="w-full bg-primary text-white py-3 rounded-xl font-semibold 
+                           hover:bg-primary/90 transition">
+                Register
+            </button>
+
+            <!-- Login Link -->
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                Already have an account?
+                <a href="{% url 'login' %}" class="text-primary hover:underline">Login here</a>
+            </p>
+
+        </form>
+
     </div>
+
 </div>
+
+<!-- JS for password visibility toggle -->
+<script>
+    function setupToggle(inputId, btnId) {
+        const input = document.getElementById(inputId);
+        const btn = document.getElementById(btnId);
+
+        btn.addEventListener("click", () => {
+            const type = input.type === "password" ? "text" : "password";
+            input.type = type;
+            btn.innerHTML = type === "password"
+                ? '<i class="bi bi-eye-slash text-xl"></i>'
+                : '<i class="bi bi-eye text-xl"></i>';
+        });
+    }
+
+    setupToggle("passwordField", "togglePass1");
+    setupToggle("passwordField2", "togglePass2");
+</script>
 
 {% endblock %}

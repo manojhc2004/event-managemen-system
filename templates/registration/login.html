@@ -1,81 +1,85 @@
 {% extends "base.html" %}
-{% load static %}
 {% block title %}Login{% endblock %}
 
 {% block content %}
 
-<style>
-    /* Remove container layout influence */
-    .container.mt-4 {
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+<div class="flex justify-center items-center min-h-[70vh]">
 
-    /* This was causing left shift because base.html applies flex to all .container */
-    .container {
-        display: block !important;  /* ✅ Forces normal layout */
-    }
+    <div class="w-full max-w-md bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8">
 
-    /* Center wrapper */
-    .login-wrapper {
-        min-height: calc(100vh - 70px);
-        display: flex;
-        justify-content: center;   /* ✅ Horizontal center */
-        align-items: center;       /* ✅ Vertical center */
-        background: #f2f4f7;
-        padding: 20px;
-    }
+        <!-- Title -->
+        <h2 class="text-2xl font-bold text-center text-primary mb-6">
+            Welcome Back
+        </h2>
 
-    .login-card {
-        width: 380px;
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 25px 30px;
-        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.15);
-        animation: fadeIn .4s ease;
-    }
+        <!-- Django Form Errors -->
+        {% if form.errors %}
+        <div class="mb-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-sm">
+            Invalid username or password. Try again.
+        </div>
+        {% endif %}
 
-    .login-title {
-        text-align: center;
-        font-weight: 700;
-        font-size: 22px;
-        margin-bottom: 18px;
-        color: #0d6efd;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
-
-
-<div class="login-wrapper">
-    <div class="login-card">
-        <h3 class="login-title">User Login</h3>
-
-        <form method="post">
+        <!-- Form -->
+        <form method="post" class="space-y-5">
             {% csrf_token %}
-            {% for field in form %}
-                <div class="mb-3">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                    {{ field }}
-                    {% for error in field.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
+
+            <!-- Username -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Username</label>
+                <input type="text" name="username"
+                       class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:ring-primary/40"
+                       placeholder="Enter your username" required>
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label class="block text-sm font-medium mb-1">Password</label>
+
+                <div class="relative">
+                    <input id="passwordInput" type="password" name="password"
+                           class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:ring-primary/40"
+                           placeholder="Enter your password" required>
+
+                    <!-- Eye Icon -->
+                    <button type="button" id="togglePassword"
+                            class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-300">
+                        <i class="bi bi-eye-slash text-xl"></i>
+                    </button>
                 </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary w-100 mt-2">Log In</button>
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit"
+                    class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary/90 transition">
+                Login
+            </button>
+
+            <!-- Signup Link -->
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Don’t have an account?
+                <a href="{% url 'register' %}" class="text-primary hover:underline">Create one</a>
+            </p>
+
         </form>
 
-        <p class="text-center mt-3 mb-0">
-            Don't have an account?
-            <a href="{% url 'register' %}">Register here</a>
-        </p>
     </div>
+
 </div>
 
-{% endblock %}
+<!-- Password Toggle Script -->
+<script>
+    const toggleBtn = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("passwordInput");
 
+    toggleBtn.addEventListener("click", () => {
+        const type = passwordInput.type === "password" ? "text" : "password";
+        passwordInput.type = type;
+
+        toggleBtn.innerHTML = type === "password"
+            ? '<i class="bi bi-eye-slash text-xl"></i>'
+            : '<i class="bi bi-eye text-xl"></i>';
+    });
+</script>
+
+{% endblock %}
 

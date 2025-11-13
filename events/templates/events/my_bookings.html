@@ -1,103 +1,92 @@
 {% extends "base.html" %}
-{% load static %}
 {% block title %}My Bookings{% endblock %}
 
 {% block content %}
 
-<style>
-    /* Override container layout to allow centering */
-    .container.mt-4 {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
+<div class="max-w-5xl mx-auto py-10 space-y-10">
 
-    .container {
-        display: block !important;
-    }
+    <h1 class="text-3xl font-bold text-primary text-center mb-10">My Bookings</h1>
 
-    /* Page Wrapper */
-    .bookings-wrapper {
-        min-height: calc(100vh - 70px);
-        display: flex;
-        justify-content: center;
-        padding: 40px 20px;
-        background: #f2f4f7;
-    }
+    {% if bookings %}
+        <div class="space-y-8">
 
-    .bookings-card {
-        width: 900px;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-        padding: 25px 30px;
-        animation: fadeIn .35s ease;
-    }
+            {% for booking in bookings %}
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
 
-    .bookings-title {
-        text-align: center;
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 25px;
-        color: #0d6efd;
-    }
-
-    @keyframes fadeIn {
-        from {opacity: 0; transform: translateY(8px);}
-        to {opacity: 1; transform: translateY(0);}
-    }
-</style>
-
-<div class="bookings-wrapper">
-    <div class="bookings-card">
-
-        <h1 class="bookings-title">Your Event Bookings</h1>
-
-        <ul class="nav nav-tabs mb-4" id="bookingTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming" aria-selected="true">
-                    Upcoming ({{ upcoming_bookings|length }})
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="past-tab" data-bs-toggle="tab" data-bs-target="#past" type="button" role="tab" aria-controls="past" aria-selected="false">
-                    Past ({{ past_bookings|length }})
-                </button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="bookingTabsContent">
-            
-            <!-- UPCOMING -->
-            <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
-                {% if upcoming_bookings %}
-                    {% for booking in upcoming_bookings %}
-                        {% include "includes/booking_card.html" with booking=booking is_upcoming=True %}
-                    {% endfor %}
-                {% else %}
-                    <div class="alert alert-info text-center">
-                        No upcoming event bookings. <a href="{% url 'event_list' %}" class="alert-link">Browse events →</a>
+                    <!-- Event Image -->
+                    {% if booking.event.image %}
+                    <img src="{{ booking.event.image.url }}" class="w-full h-64 object-cover">
+                    {% else %}
+                    <div class="w-full h-64 bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
+                        <span class="text-gray-500">No Image</span>
                     </div>
-                {% endif %}
-            </div>
+                    {% endif %}
 
-            <!-- PAST -->
-            <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
-                {% if past_bookings %}
-                    {% for booking in past_bookings %}
-                        {% include "includes/booking_card.html" with booking=booking is_upcoming=False %}
-                    {% endfor %}
-                {% else %}
-                    <div class="alert alert-secondary text-center">
-                        No past bookings.
+                    <div class="p-6 space-y-3">
+
+                        <!-- Event Title -->
+                        <h2 class="text-xl font-semibold text-primary">
+                            {{ booking.event.title }}
+                        </h2>
+
+                        <!-- Date & Time -->
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            <i class="bi bi-calendar-event"></i>
+                            {{ booking.event.date|date:"F d, Y" }} at {{ booking.event.time|time:"h:i A" }}
+                        </p>
+
+                        <!-- Venue -->
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            <i class="bi bi-geo-alt"></i>
+                            {{ booking.event.venue }}
+                        </p>
+
+                        <!-- Booked On -->
+                        <p class="text-gray-400 dark:text-gray-400 text-xs">
+                            Booked on: {{ booking.booking_date|date:"F d, Y h:i A" }}
+                        </p>
+
+                        <div class="flex items-center justify-between pt-4">
+
+                            <!-- View Event Button -->
+                            <a href="{% url 'event_detail' booking.event.id %}"
+                               class="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition">
+                                View Event
+                            </a>
+
+                            <!-- Cancel Button (Only for upcoming events) -->
+                            {% if booking.can_cancel %}
+                                <form action="{% url 'cancel_booking' booking.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition">
+                                        Cancel Booking
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="px-4 py-2 bg-gray-400 text-white rounded-xl">
+                                    Cannot Cancel
+                                </span>
+                            {% endif %}
+
+                        </div>
                     </div>
-                {% endif %}
-            </div>
+
+                </div>
+            {% endfor %}
 
         </div>
 
-    </div>
+    {% else %}
+        <!-- No Bookings -->
+        <div class="bg-white dark:bg-gray-800 p-10 rounded-xl shadow text-center">
+            <p class="text-gray-500">You have no bookings yet.</p>
+            <a href="{% url 'event_list' %}"
+               class="mt-4 inline-block px-5 py-3 bg-primary text-white rounded-xl">
+                Browse Events →
+            </a>
+        </div>
+    {% endif %}
+
 </div>
 
 {% endblock %}

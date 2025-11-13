@@ -1,87 +1,85 @@
 {% extends "base.html" %}
-{% block title %}User Profile{% endblock %}
+{% block title %}My Profile{% endblock %}
 
 {% block content %}
 
-<style>
-    /* Remove base layout spacing just for this page */
-    .container.mt-4 {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
+<div class="max-w-3xl mx-auto">
 
-    /* Fix navbar forcing flex layout */
-    .container {
-        display: block !important;
-    }
+    <!-- Header -->
+    <h1 class="text-3xl font-bold text-primary text-center mb-10">My Profile</h1>
 
-    /* Center wrapper */
-    .profile-wrapper {
-        min-height: calc(100vh - 70px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #f2f4f7;
-        padding: 20px;
-    }
+    <!-- BUTTONS -->
+    <div class="flex justify-center gap-4 mb-10">
 
-    .profile-card {
-        width: 430px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-        overflow: hidden;
-        animation: fadeIn .35s ease;
-    }
+        <!-- My Bookings -->
+        <a href="{% url 'my_bookings' %}"
+           class="px-6 py-2 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition">
+            My Bookings
+        </a>
 
-    .profile-header {
-        background: #0d6efd;
-        color: white;
-        text-align: center;
-        padding: 18px;
-        font-size: 24px;
-        font-weight: 700;
-    }
+        <!-- Edit Profile -->
+        <a href="#editSection"
+           class="px-6 py-2 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition">
+            Edit Profile
+        </a>
 
-    .profile-body {
-        padding: 25px 30px;
-    }
-
-    @keyframes fadeIn {
-        from {opacity:0; transform:translateY(8px);}
-        to {opacity:1; transform:translateY(0);}
-    }
-</style>
-
-<div class="profile-wrapper">
-    <div class="profile-card">
-        
-        <div class="profile-header">
-            Manage Your Profile
-        </div>
-
-        <div class="profile-body">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                <label class="form-label">Username (Cannot be changed)</label>
-                <input type="text" class="form-control mb-3" value="{{ user.username }}" disabled>
-
-                {{ user_form.as_p }}
-                {{ profile_form.as_p }}
-
-                <button type="submit" class="btn btn-success w-100 mt-2">Save Changes</button>
-            </form>
-
-            <div class="text-center mt-3">
-                <a href="{% url 'password_change' %}">Change Password</a>
-            </div>
-
-        </div>
+        <!-- Logout -->
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit"
+                class="px-6 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition">
+                Logout
+            </button>
+        </form>
 
     </div>
+
+    <!-- PROFILE EDIT FORM -->
+    <div id="editSection"
+         class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow space-y-6">
+
+        <h2 class="text-xl font-semibold text-primary mb-4">Edit Your Profile</h2>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="space-y-4">
+
+                <div>
+                    <label class="block mb-1 text-sm text-gray-500">First Name</label>
+                    {{ user_form.first_name }}
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm text-gray-500">Last Name</label>
+                    {{ user_form.last_name }}
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm text-gray-500">Email</label>
+                    {{ user_form.email }}
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm text-gray-500">Mobile</label>
+                    {{ profile_form.mobile }}
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm text-gray-500">Profile Picture</label>
+                    {{ profile_form.profile_picture }}
+                </div>
+
+            </div>
+
+            <button
+                class="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition">
+                Save Changes
+            </button>
+        </form>
+
+    </div>
+
 </div>
 
 {% endblock %}
